@@ -2,7 +2,7 @@
 
 A powerful, free, browser-based diagram editor built with vanilla HTML, CSS, and JavaScript. No backend, no database, no framework — just open and draw.
 
-> **Created by [Nawaraj Poudel](https://github.com/nawarajpoudel)** · © 2026
+> **Created by [Nawaraj Poudel](https://github.com/nawarajpoudel18)** · © 2026
 
 ---
 
