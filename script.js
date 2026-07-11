@@ -574,7 +574,7 @@ function switchPickerCategory(cat) {
 function renderPickerGrid() {
   const grid = document.getElementById('picker-grid-content');
   grid.innerHTML = '';
-  
+
   const filtered = DIAGRAM_TYPES.filter(d => {
     const matchesSearch = d.name.toLowerCase().includes(pickerSearchText) || d.desc.toLowerCase().includes(pickerSearchText);
     const matchesCat = pickerCategory === 'all' || d.category === pickerCategory;
@@ -598,7 +598,7 @@ function renderPickerGrid() {
     };
 
     const categoryLabels = { uml: 'UML', db: 'Database / ER', general: 'General', examples: 'Example Template' };
-    
+
     card.innerHTML = `
       <div class="picker-card-header">
         <h3 class="picker-card-title">${d.name}</h3>
@@ -613,7 +613,7 @@ function renderPickerGrid() {
 function setDiagramType(typeId, loadTemplate = true) {
   const d = DIAGRAM_TYPES.find(x => x.id === typeId) || DIAGRAM_TYPES[1];
   currentDiagramType = d.id;
-  
+
   // Update toolbar text label
   document.getElementById('active-diagram-type-label').textContent = d.name;
 
@@ -678,10 +678,10 @@ function renderToolbox() {
       const btn = document.createElement('button');
       btn.className = 'toolbox-btn';
       btn.onclick = () => addComp(typeKey);
-      
+
       const svgIcon = SHAPE_SVGS[typeKey] || SHAPE_SVGS.entity;
       const labelText = SHAPE_NAMES[typeKey] || typeKey;
-      
+
       btn.innerHTML = `${svgIcon} ${labelText}`;
       toolbox.appendChild(btn);
     });
@@ -701,8 +701,8 @@ function isDark() {
 
 function theme() {
   return isDark()
-    ? { bg:'#1e1e1e', bg2:'#252525', text:'#e0e0e0', sub:'#888', wire:'#4a9eff', sel:'#4a9eff', stroke:'#ccc', fill:'#2a2a2a', pin:'#4a9eff', grid:'rgba(255,255,255,0.05)' }
-    : { bg:'#fff', bg2:'#f5f5f4', text:'#1a1a1a', sub:'#777', wire:'#1a6bcc', sel:'#1a6bcc', stroke:'#2a2a2a', fill:'#f9f9f7', pin:'#1a6bcc', grid:'rgba(0,0,0,0.06)' };
+    ? { bg: '#1e1e1e', bg2: '#252525', text: '#e0e0e0', sub: '#888', wire: '#4a9eff', sel: '#4a9eff', stroke: '#ccc', fill: '#2a2a2a', pin: '#4a9eff', grid: 'rgba(255,255,255,0.05)' }
+    : { bg: '#fff', bg2: '#f5f5f4', text: '#1a1a1a', sub: '#777', wire: '#1a6bcc', sel: '#1a6bcc', stroke: '#2a2a2a', fill: '#f9f9f7', pin: '#1a6bcc', grid: 'rgba(0,0,0,0.06)' };
 }
 
 function resize() {
@@ -717,14 +717,14 @@ function drawGrid() {
   const T = theme();
   const w = gridC.width, h = gridC.height;
   gc.clearRect(0, 0, w, h);
-  
+
   gc.save();
   gc.translate(offsetX, offsetY);
   gc.scale(scale, scale);
 
   gc.strokeStyle = T.grid;
   gc.lineWidth = 0.5 / scale;
-  
+
   // Calculate visible range in grid coordinates
   const startX = Math.floor(-offsetX / scale / GRID) * GRID - GRID;
   const endX = startX + (w / scale) + GRID * 2;
@@ -738,13 +738,13 @@ function drawGrid() {
   for (let y = startY; y < endY; y += GRID) {
     gc.beginPath(); gc.moveTo(startX, y); gc.lineTo(endX, y); gc.stroke();
   }
-  
+
   // Intersect dots every 5 grids
   gc.fillStyle = isDark() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.10)';
   const dotSpacing = GRID * 5;
   const dotStartX = Math.floor(startX / dotSpacing) * dotSpacing;
   const dotStartY = Math.floor(startY / dotSpacing) * dotSpacing;
-  
+
   for (let x = dotStartX; x < endX; x += dotSpacing) {
     for (let y = dotStartY; y < endY; y += dotSpacing) {
       gc.beginPath(); gc.arc(x, y, 1.5 / scale, 0, Math.PI * 2); gc.fill();
@@ -776,7 +776,7 @@ function drawComp(c, isSel) {
       ctx.beginPath(); ctx.moveTo(15, 0); ctx.lineTo(32, 0); ctx.stroke();
       // zigzag inside
       ctx.beginPath();
-      const pts = [[-14,0],[-10,-7],[-5,7],[0,-7],[5,7],[10,-7],[14,0]];
+      const pts = [[-14, 0], [-10, -7], [-5, 7], [0, -7], [5, 7], [10, -7], [14, 0]];
       ctx.moveTo(pts[0][0], pts[0][1]);
       pts.slice(1).forEach(p => ctx.lineTo(p[0], p[1]));
       ctx.strokeStyle = isSel ? T.sel : (isDark() ? '#888' : '#555');
@@ -820,8 +820,8 @@ function drawComp(c, isSel) {
     }
     case 'ground': {
       ctx.beginPath(); ctx.moveTo(0, -24); ctx.lineTo(0, 0); ctx.stroke();
-      [[24,0],[16,8],[8,16]].forEach(([w,y]) => {
-        ctx.beginPath(); ctx.moveTo(-w/2, y); ctx.lineTo(w/2, y); ctx.stroke();
+      [[24, 0], [16, 8], [8, 16]].forEach(([w, y]) => {
+        ctx.beginPath(); ctx.moveTo(-w / 2, y); ctx.lineTo(w / 2, y); ctx.stroke();
       });
       break;
     }
@@ -865,7 +865,7 @@ function drawComp(c, isSel) {
     case 'gate_and': {
       ctx.beginPath(); ctx.moveTo(-25, -8); ctx.lineTo(-15, -8); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(-25, 8); ctx.lineTo(-15, 8); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-15, -16); ctx.lineTo(0, -16); ctx.arc(0, 0, 16, -Math.PI/2, Math.PI/2); ctx.lineTo(-15, 16); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-15, -16); ctx.lineTo(0, -16); ctx.arc(0, 0, 16, -Math.PI / 2, Math.PI / 2); ctx.lineTo(-15, 16); ctx.closePath(); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(16, 0); ctx.lineTo(25, 0); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(c.label, 0, 28);
       break;
@@ -873,7 +873,7 @@ function drawComp(c, isSel) {
     case 'gate_nand': {
       ctx.beginPath(); ctx.moveTo(-25, -8); ctx.lineTo(-15, -8); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(-25, 8); ctx.lineTo(-15, 8); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-15, -16); ctx.lineTo(0, -16); ctx.arc(0, 0, 16, -Math.PI/2, Math.PI/2); ctx.lineTo(-15, 16); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-15, -16); ctx.lineTo(0, -16); ctx.arc(0, 0, 16, -Math.PI / 2, Math.PI / 2); ctx.lineTo(-15, 16); ctx.closePath(); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.arc(19, 0, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(22, 0); ctx.lineTo(25, 0); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(c.label, 0, 28);
@@ -917,21 +917,21 @@ function drawComp(c, isSel) {
     }
     case 'logic_input': {
       const w = c.w || 30, h = c.h || 20;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2 + 10, 0); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2 + 10, 0); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(c.label, 0, 4);
       break;
     }
     case 'logic_output': {
       const w = c.w || 30, h = c.h || 20;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-w/2 - 10, 0); ctx.lineTo(-w/2, 0); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2 - 10, 0); ctx.lineTo(-w / 2, 0); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(c.label, 0, 4);
       break;
     }
     case 'entity': {
       const w = c.w || 100, h = c.h || 45;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h);
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h);
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
@@ -939,16 +939,16 @@ function drawComp(c, isSel) {
     }
     case 'weak_entity': {
       const w = c.w || 100, h = c.h || 45;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       ctx.lineWidth = 0.8;
-      ctx.beginPath(); ctx.rect(-w/2+4, -h/2+4, w-8, h-8); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2 + 4, -h / 2 + 4, w - 8, h - 8); ctx.stroke();
       ctx.lineWidth = isSel ? 2 : 1.6;
       ctx.fillStyle = T.text; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
       break;
     }
     case 'attribute': {
-      const rx = c.w ? c.w/2 : 44, ry = c.h ? c.h/2 : 22;
+      const rx = c.w ? c.w / 2 : 44, ry = c.h ? c.h / 2 : 22;
       ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
@@ -956,18 +956,18 @@ function drawComp(c, isSel) {
       break;
     }
     case 'key_attr': {
-      const rx = c.w ? c.w/2 : 44, ry = c.h ? c.h/2 : 22;
+      const rx = c.w ? c.w / 2 : 44, ry = c.h ? c.h / 2 : 22;
       ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
       // underline
       const tw = ctx.measureText(c.label).width;
-      ctx.beginPath(); ctx.moveTo(-tw/2, 8); ctx.lineTo(tw/2, 8); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-tw / 2, 8); ctx.lineTo(tw / 2, 8); ctx.stroke();
       break;
     }
     case 'multivalued_attr': {
-      const rx = c.w ? c.w/2 : 44, ry = c.h ? c.h/2 : 22;
+      const rx = c.w ? c.w / 2 : 44, ry = c.h ? c.h / 2 : 22;
       ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.lineWidth = 0.8;
       ctx.beginPath(); ctx.ellipse(0, 0, rx - 4, ry - 3, 0, 0, Math.PI * 2); ctx.stroke();
@@ -977,7 +977,7 @@ function drawComp(c, isSel) {
       break;
     }
     case 'derived_attr': {
-      const rx = c.w ? c.w/2 : 44, ry = c.h ? c.h/2 : 22;
+      const rx = c.w ? c.w / 2 : 44, ry = c.h ? c.h / 2 : 22;
       ctx.save();
       ctx.setLineDash([4, 3]);
       ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -987,7 +987,7 @@ function drawComp(c, isSel) {
       break;
     }
     case 'relation': {
-      const hw = c.w ? c.w/2 : 48, hh = c.h ? c.h/2 : 26;
+      const hw = c.w ? c.w / 2 : 48, hh = c.h ? c.h / 2 : 26;
       ctx.beginPath(); ctx.moveTo(0, -hh); ctx.lineTo(hw, 0); ctx.lineTo(0, hh); ctx.lineTo(-hw, 0); ctx.closePath();
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
@@ -995,10 +995,10 @@ function drawComp(c, isSel) {
       break;
     }
     case 'weak_relationship': {
-      const hw = c.w ? c.w/2 : 48, hh = c.h ? c.h/2 : 26;
+      const hw = c.w ? c.w / 2 : 48, hh = c.h ? c.h / 2 : 26;
       ctx.beginPath(); ctx.moveTo(0, -hh); ctx.lineTo(hw, 0); ctx.lineTo(0, hh); ctx.lineTo(-hw, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
       ctx.lineWidth = 0.8;
-      ctx.beginPath(); ctx.moveTo(0, -hh+4); ctx.lineTo(hw-6, 0); ctx.lineTo(0, hh-4); ctx.lineTo(-hw+6, 0); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, -hh + 4); ctx.lineTo(hw - 6, 0); ctx.lineTo(0, hh - 4); ctx.lineTo(-hw + 6, 0); ctx.closePath(); ctx.stroke();
       ctx.lineWidth = isSel ? 2 : 1.6;
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
@@ -1023,17 +1023,17 @@ function drawComp(c, isSel) {
     }
     case 'dfd_external': {
       const w = c.w || 100, h = c.h || 60;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
       break;
     }
     case 'dfd_datastore': {
       const w = c.w || 120, h = c.h || 40;
-      ctx.beginPath(); ctx.moveTo(-w/2, -h/2); ctx.lineTo(w/2, -h/2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-w/2, h/2); ctx.lineTo(w/2, h/2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2); ctx.lineTo(w / 2, -h / 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2, h / 2); ctx.lineTo(w / 2, h / 2); ctx.stroke();
       // left side open vertical indicator
-      ctx.beginPath(); ctx.moveTo(-w/2 + 12, -h/2); ctx.lineTo(-w/2 + 12, h/2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2 + 12, -h / 2); ctx.lineTo(-w / 2 + 12, h / 2); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 6, 4);
       break;
@@ -1042,13 +1042,13 @@ function drawComp(c, isSel) {
     case 'flow_terminal': {
       const w = c.w || 100, h = c.h || 40, r = h / 2;
       ctx.beginPath();
-      ctx.moveTo(-w/2 + r, -h/2);
-      ctx.lineTo(w/2 - r, -h/2);
-      ctx.arcTo(w/2, -h/2, w/2, 0, r);
-      ctx.arcTo(w/2, h/2, w/2 - r, h/2, r);
-      ctx.lineTo(-w/2 + r, h/2);
-      ctx.arcTo(-w/2, h/2, -w/2, 0, r);
-      ctx.arcTo(-w/2, -h/2, -w/2 + r, -h/2, r);
+      ctx.moveTo(-w / 2 + r, -h / 2);
+      ctx.lineTo(w / 2 - r, -h / 2);
+      ctx.arcTo(w / 2, -h / 2, w / 2, 0, r);
+      ctx.arcTo(w / 2, h / 2, w / 2 - r, h / 2, r);
+      ctx.lineTo(-w / 2 + r, h / 2);
+      ctx.arcTo(-w / 2, h / 2, -w / 2, 0, r);
+      ctx.arcTo(-w / 2, -h / 2, -w / 2 + r, -h / 2, r);
       ctx.closePath(); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
@@ -1056,7 +1056,7 @@ function drawComp(c, isSel) {
     }
     case 'flow_process': {
       const w = c.w || 100, h = c.h || 60;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
       break;
@@ -1071,8 +1071,8 @@ function drawComp(c, isSel) {
     case 'flow_io': {
       const w = c.w || 110, h = c.h || 50;
       ctx.beginPath();
-      ctx.moveTo(-w/2 + 10, -h/2); ctx.lineTo(w/2, -h/2);
-      ctx.lineTo(w/2 - 10, h/2); ctx.lineTo(-w/2, h/2);
+      ctx.moveTo(-w / 2 + 10, -h / 2); ctx.lineTo(w / 2, -h / 2);
+      ctx.lineTo(w / 2 - 10, h / 2); ctx.lineTo(-w / 2, h / 2);
       ctx.closePath(); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
@@ -1080,9 +1080,9 @@ function drawComp(c, isSel) {
     }
     case 'flow_subprocess': {
       const w = c.w || 110, h = c.h || 60;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-w/2 + 8, -h/2); ctx.lineTo(-w/2 + 8, h/2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(w/2 - 8, -h/2); ctx.lineTo(w/2 - 8, h/2); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2 + 8, -h / 2); ctx.lineTo(-w / 2 + 8, h / 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(w / 2 - 8, -h / 2); ctx.lineTo(w / 2 - 8, h / 2); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
       break;
@@ -1097,39 +1097,39 @@ function drawComp(c, isSel) {
     // Wireframe Shapes
     case 'wf_box': {
       const w = c.w || 160, h = c.h || 120;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.sub; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText(c.label, -w/2 + 8, -h/2 + 16);
+      ctx.fillText(c.label, -w / 2 + 8, -h / 2 + 16);
       break;
     }
     case 'wf_button': {
       const w = c.w || 90, h = c.h || 36;
       ctx.fillStyle = isDark() ? '#3a3a3a' : '#eaeaea';
-      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-w/2, -h/2, w, h, 6) : ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-w / 2, -h / 2, w, h, 6) : ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
       break;
     }
     case 'wf_input': {
       const w = c.w || 130, h = c.h || 36;
-      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-w/2, -h/2, w, h, 4) : ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-w / 2, -h / 2, w, h, 4) : ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.sub; ctx.font = 'italic 11px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText(c.label, -w/2 + 8, 4);
+      ctx.fillText(c.label, -w / 2 + 8, 4);
       break;
     }
     case 'wf_text': {
       ctx.fillStyle = T.text; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       const lines = c.label.split('\n');
       lines.forEach((line, idx) => {
-        ctx.fillText(line, 0, 4 + (idx - (lines.length-1)/2) * 16);
+        ctx.fillText(line, 0, 4 + (idx - (lines.length - 1) / 2) * 16);
       });
       break;
     }
     case 'wf_image': {
       const w = c.w || 120, h = c.h || 90;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-w/2, -h/2); ctx.lineTo(w/2, h/2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(w/2, -h/2); ctx.lineTo(-w/2, h/2); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2); ctx.lineTo(w / 2, h / 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(w / 2, -h / 2); ctx.lineTo(-w / 2, h / 2); ctx.stroke();
       ctx.fillStyle = T.bg; ctx.beginPath(); ctx.rect(-24, -10, 48, 20); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label || 'IMAGE', 0, 3);
@@ -1137,33 +1137,33 @@ function drawComp(c, isSel) {
     }
     case 'wf_divider': {
       const w = c.w || 160;
-      ctx.beginPath(); ctx.moveTo(-w/2, 0); ctx.lineTo(w/2, 0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2, 0); ctx.lineTo(w / 2, 0); ctx.stroke();
       break;
     }
     // UML Shapes
     case 'uml_class':
     case 'uml_interface': {
       const w = c.w || 130, h = c.h || 100;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       // Draw standard UML class division lines
-      ctx.beginPath(); ctx.moveTo(-w/2, -h/2 + 30); ctx.lineTo(w/2, -h/2 + 30); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-w/2, -h/2 + 65); ctx.lineTo(w/2, -h/2 + 65); ctx.stroke();
-      
+      ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2 + 30); ctx.lineTo(w / 2, -h / 2 + 30); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2 + 65); ctx.lineTo(w / 2, -h / 2 + 65); ctx.stroke();
+
       ctx.fillStyle = T.text; ctx.textAlign = 'center';
       if (c.type === 'uml_interface') {
         ctx.font = 'italic 10px sans-serif';
-        ctx.fillText('«interface»', 0, -h/2 + 12);
+        ctx.fillText('«interface»', 0, -h / 2 + 12);
         ctx.font = 'bold 11px sans-serif';
-        ctx.fillText(c.label.replace('«interface»', '').trim(), 0, -h/2 + 24);
+        ctx.fillText(c.label.replace('«interface»', '').trim(), 0, -h / 2 + 24);
       } else {
         ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(c.label, 0, -h/2 + 18);
+        ctx.fillText(c.label, 0, -h / 2 + 18);
       }
-      
+
       // Draw attributes / methods placeholders
       ctx.fillStyle = T.sub; ctx.font = '10px monospace'; ctx.textAlign = 'left';
-      ctx.fillText('+ id: int', -w/2 + 8, -h/2 + 44);
-      ctx.fillText('+ getName(): string', -w/2 + 8, -h/2 + 82);
+      ctx.fillText('+ id: int', -w / 2 + 8, -h / 2 + 44);
+      ctx.fillText('+ getName(): string', -w / 2 + 8, -h / 2 + 82);
       break;
     }
     case 'uml_actor': {
@@ -1178,7 +1178,7 @@ function drawComp(c, isSel) {
       break;
     }
     case 'uml_usecase': {
-      const rx = c.w ? c.w/2 : 55, ry = c.h ? c.h/2 : 25;
+      const rx = c.w ? c.w / 2 : 55, ry = c.h ? c.h / 2 : 25;
       ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
@@ -1188,26 +1188,26 @@ function drawComp(c, isSel) {
       const w = c.w || 200, h = c.h || 200;
       ctx.save();
       ctx.setLineDash([6, 4]);
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       ctx.restore();
       ctx.fillStyle = T.sub; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText(c.label, -w/2 + 10, -h/2 + 18);
+      ctx.fillText(c.label, -w / 2 + 10, -h / 2 + 18);
       break;
     }
     case 'uml_lifeline': {
       const w = c.w || 90, h = c.h || 180;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, 32); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, 32); ctx.fill(); ctx.stroke();
       ctx.save();
       ctx.setLineDash([6, 5]);
-      ctx.beginPath(); ctx.moveTo(0, -h/2 + 32); ctx.lineTo(0, h/2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, -h / 2 + 32); ctx.lineTo(0, h / 2); ctx.stroke();
       ctx.restore();
       ctx.fillStyle = T.text; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(c.label, 0, -h/2 + 20);
+      ctx.fillText(c.label, 0, -h / 2 + 20);
       break;
     }
     case 'uml_activation': {
       const w = c.w || 20, h = c.h || 80;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
       break;
     }
     case 'uml_initial': {
@@ -1226,7 +1226,7 @@ function drawComp(c, isSel) {
     case 'uml_activity': {
       const w = c.w || 110, h = c.h || 50, r = 12;
       ctx.beginPath();
-      ctx.roundRect ? ctx.roundRect(-w/2, -h/2, w, h, r) : ctx.rect(-w/2, -h/2, w, h);
+      ctx.roundRect ? ctx.roundRect(-w / 2, -h / 2, w, h, r) : ctx.rect(-w / 2, -h / 2, w, h);
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 4);
@@ -1235,15 +1235,15 @@ function drawComp(c, isSel) {
     case 'uml_fork_join': {
       const w = c.w || 140, h = c.h || 12;
       ctx.fillStyle = T.stroke;
-      ctx.beginPath(); ctx.rect(-w/2, -h/2, w, h); ctx.fill();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2, w, h); ctx.fill();
       break;
     }
     case 'uml_component': {
       const w = c.w || 120, h = c.h || 70;
-      ctx.beginPath(); ctx.rect(-w/2 + 8, -h/2, w - 8, h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2 + 8, -h / 2, w - 8, h); ctx.fill(); ctx.stroke();
       // Draw the two left-side protruding tabs
-      ctx.beginPath(); ctx.rect(-w/2, -h/2 + 10, 16, 12); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.rect(-w/2, h/2 - 22, 16, 12); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, -h / 2 + 10, 16, 12); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(-w / 2, h / 2 - 22, 16, 12); ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 8, 4);
       break;
@@ -1259,29 +1259,29 @@ function drawComp(c, isSel) {
     case 'uml_node': {
       const w = c.w || 110, h = c.h || 90, d = 14;
       ctx.beginPath();
-      ctx.moveTo(-w/2 + d, -h/2); ctx.lineTo(w/2, -h/2);
-      ctx.lineTo(w/2, h/2 - d); ctx.lineTo(-w/2 + d, h/2 - d); ctx.closePath();
-      ctx.rect(-w/2, -h/2 + d, w - d, h - d);
-      ctx.moveTo(-w/2, -h/2 + d); ctx.lineTo(-w/2 + d, -h/2);
-      ctx.moveTo(w/2 - d, -h/2 + d); ctx.lineTo(w/2, -h/2);
-      ctx.moveTo(w/2 - d, h/2); ctx.lineTo(w/2, h/2 - d);
-      ctx.moveTo(-w/2, h/2); ctx.lineTo(-w/2 + d, h/2 - d);
+      ctx.moveTo(-w / 2 + d, -h / 2); ctx.lineTo(w / 2, -h / 2);
+      ctx.lineTo(w / 2, h / 2 - d); ctx.lineTo(-w / 2 + d, h / 2 - d); ctx.closePath();
+      ctx.rect(-w / 2, -h / 2 + d, w - d, h - d);
+      ctx.moveTo(-w / 2, -h / 2 + d); ctx.lineTo(-w / 2 + d, -h / 2);
+      ctx.moveTo(w / 2 - d, -h / 2 + d); ctx.lineTo(w / 2, -h / 2);
+      ctx.moveTo(w / 2 - d, h / 2); ctx.lineTo(w / 2, h / 2 - d);
+      ctx.moveTo(-w / 2, h / 2); ctx.lineTo(-w / 2 + d, h / 2 - d);
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(c.label, -d/2, d/2 + 4);
+      ctx.fillText(c.label, -d / 2, d / 2 + 4);
       break;
     }
     case 'uml_package': {
       const w = c.w || 120, h = c.h || 80;
       ctx.beginPath();
-      ctx.moveTo(-w/2, -h/2);
-      ctx.lineTo(-w/2 + 40, -h/2);
-      ctx.lineTo(-w/2 + 50, -h/2 + 10);
-      ctx.lineTo(w/2, -h/2 + 10);
-      ctx.lineTo(w/2, h/2);
-      ctx.lineTo(-w/2, h/2);
+      ctx.moveTo(-w / 2, -h / 2);
+      ctx.lineTo(-w / 2 + 40, -h / 2);
+      ctx.lineTo(-w / 2 + 50, -h / 2 + 10);
+      ctx.lineTo(w / 2, -h / 2 + 10);
+      ctx.lineTo(w / 2, h / 2);
+      ctx.lineTo(-w / 2, h / 2);
       ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-w/2, -h/2 + 10); ctx.lineTo(w/2, -h/2 + 10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2 + 10); ctx.lineTo(w / 2, -h / 2 + 10); ctx.stroke();
       ctx.fillStyle = T.text; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(c.label, 0, 16);
       break;
@@ -1313,11 +1313,11 @@ function getPins(c) {
     case 'nmos': return [{ x: -28, y: 0 }, { x: 20, y: -20 }, { x: 20, y: 20 }];
     case 'uml_actor': return [{ x: 0, y: -30 }, { x: 18, y: -3 }, { x: 0, y: 35 }, { x: -18, y: -3 }];
     case 'uml_interface_lollipop': return [{ x: 0, y: -30 }, { x: 0, y: 30 }];
-    case 'uml_activation': return [{ x: 0, y: -(c.h||80)/2 }, { x: (c.w||20)/2, y: 0 }, { x: 0, y: (c.h||80)/2 }, { x: -(c.w||20)/2, y: 0 }];
+    case 'uml_activation': return [{ x: 0, y: -(c.h || 80) / 2 }, { x: (c.w || 20) / 2, y: 0 }, { x: 0, y: (c.h || 80) / 2 }, { x: -(c.w || 20) / 2, y: 0 }];
     case 'uml_fork_join': {
       const w = c.w || 140;
       return [
-        { x: -w/2, y: 0 }, { x: -w/4, y: 0 }, { x: 0, y: 0 }, { x: w/4, y: 0 }, { x: w/2, y: 0 }
+        { x: -w / 2, y: 0 }, { x: -w / 4, y: 0 }, { x: 0, y: 0 }, { x: w / 4, y: 0 }, { x: w / 2, y: 0 }
       ];
     }
     case 'flow_connector':
@@ -1333,8 +1333,8 @@ function getPins(c) {
     case 'gate_nor':
     case 'gate_xor':
     case 'gate_xnor': return [{ x: -25, y: -8 }, { x: -25, y: 8 }, { x: 25, y: 0 }];
-    case 'logic_input': return [{ x: (c.w||30)/2 + 10, y: 0 }];
-    case 'logic_output': return [{ x: -(c.w||30)/2 - 10, y: 0 }];
+    case 'logic_input': return [{ x: (c.w || 30) / 2 + 10, y: 0 }];
+    case 'logic_output': return [{ x: -(c.w || 30) / 2 - 10, y: 0 }];
     // All other 4-pin shapes
     default: {
       const hw = (c.w || 100) / 2;
@@ -1375,18 +1375,18 @@ function drawArrowhead(ctx, fromX, fromY, toX, toY, T, isSel) {
   const angle = Math.atan2(toY - fromY, toX - fromX);
   const size = 9; // Let size stay fixed visually or scale with scale: 9 / scale is actually better for retaining crisp proportions at any zoom!
   const scaledSize = size / scale;
-  
+
   ctx.save();
   ctx.translate(toX, toY);
   ctx.rotate(angle);
-  
+
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(-scaledSize, -scaledSize * 0.4);
   ctx.lineTo(-scaledSize * 0.75, 0);
   ctx.lineTo(-scaledSize, scaledSize * 0.4);
   ctx.closePath();
-  
+
   ctx.fillStyle = isSel ? T.sel : T.wire;
   ctx.fill();
   ctx.restore();
@@ -1412,10 +1412,10 @@ function draw() {
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(x1, y1);
-    
+
     let lastPointX = x1;
     let lastPointY = y1;
-    
+
     if (w.style === 'ortho') {
       const mx = (x1 + x2) / 2;
       ctx.lineTo(mx, y1);
@@ -1426,14 +1426,14 @@ function draw() {
     // 'straight' just goes directly x1,y1 -> x2,y2 (lastPoint stays x1,y1)
     ctx.lineTo(x2, y2);
     ctx.stroke();
-    
+
     // Draw arrowhead at target end
     drawArrowhead(ctx, lastPointX, lastPointY, x2, y2, T, w === sel);
-    
+
     // Junction dot at starting pin only
     ctx.beginPath(); ctx.arc(x1, y1, 3 / scale, 0, Math.PI * 2);
     ctx.fillStyle = T.wire; ctx.fill();
-    
+
     ctx.restore();
   });
 
@@ -1443,10 +1443,10 @@ function draw() {
     ctx.strokeStyle = T.wire; ctx.lineWidth = 1.5 / scale;
     ctx.setLineDash([6 / scale, 4 / scale]);
     ctx.beginPath();
-    
+
     const startAbs = getAbsPins(wireStart.comp)[wireStart.pin];
     ctx.moveTo(startAbs.x, startAbs.y);
-    
+
     let arrowFromX, arrowFromY;
     if (wireStyle === 'ortho') {
       const mx = (startAbs.x + tempMouse.x) / 2;
@@ -1460,10 +1460,10 @@ function draw() {
     ctx.lineTo(tempMouse.x, tempMouse.y);
     ctx.stroke();
     ctx.setLineDash([]);
-    
+
     // Draw arrowhead pointing to cursor
     drawArrowhead(ctx, arrowFromX, arrowFromY, tempMouse.x, tempMouse.y, T, false);
-    
+
     // Start pin highlight
     ctx.beginPath(); ctx.arc(startAbs.x, startAbs.y, 5 / scale, 0, Math.PI * 2);
     ctx.fillStyle = T.wire; ctx.fill();
@@ -1492,14 +1492,14 @@ function hitTest(c, mx, my) {
     case 'led': return Math.abs(dx) <= 26 && Math.abs(dy) <= 16;
     case 'nmos': return Math.abs(dx) <= 30 && Math.abs(dy) <= 24;
     case 'attribute': case 'key_attr': case 'multivalued_attr': case 'derived_attr': case 'uml_usecase':
-      return (dx * dx) / Math.pow(w/2 + 4, 2) + (dy * dy) / Math.pow(h/2 + 4, 2) <= 1;
+      return (dx * dx) / Math.pow(w / 2 + 4, 2) + (dy * dy) / Math.pow(h / 2 + 4, 2) <= 1;
     case 'dfd_process':
     case 'uml_initial':
     case 'uml_final':
     case 'flow_connector':
-      return dx * dx + dy * dy <= Math.pow(w/2 + 4, 2);
+      return dx * dx + dy * dy <= Math.pow(w / 2 + 4, 2);
     case 'relation': case 'weak_relationship': case 'flow_decision': {
-      const hw = w/2 + 4, hh = h/2 + 4;
+      const hw = w / 2 + 4, hh = h / 2 + 4;
       return Math.abs(dx) / hw + Math.abs(dy) / hh <= 1;
     }
     case 'gate_not':
@@ -1512,9 +1512,9 @@ function hitTest(c, mx, my) {
       return Math.abs(dx) <= 25 && Math.abs(dy) <= 20;
     case 'logic_input':
     case 'logic_output':
-      return Math.abs(dx) <= (w||30)/2 + 10 && Math.abs(dy) <= (h||20)/2 + 5;
+      return Math.abs(dx) <= (w || 30) / 2 + 10 && Math.abs(dy) <= (h || 20) / 2 + 5;
     default:
-      return Math.abs(dx) <= w/2 + 4 && Math.abs(dy) <= h/2 + 4;
+      return Math.abs(dx) <= w / 2 + 4 && Math.abs(dy) <= h / 2 + 4;
   }
 }
 
@@ -1526,8 +1526,8 @@ function hitWire(w, mx, my) {
   if (w.style === 'ortho') {
     const midX = (x1 + x2) / 2;
     return ptSegDist(mx, my, x1, y1, midX, y1) < 9 ||
-           ptSegDist(mx, my, midX, y1, midX, y2) < 9 ||
-           ptSegDist(mx, my, midX, y2, x2, y2) < 9;
+      ptSegDist(mx, my, midX, y1, midX, y2) < 9 ||
+      ptSegDist(mx, my, midX, y2, x2, y2) < 9;
   }
   return ptSegDist(mx, my, x1, y1, x2, y2) < 9;
 }
@@ -1579,63 +1579,63 @@ function clearAll() {
 
 function addComp(type) {
   saveHistory();
-  
+
   // Center spawn relative to visible canvas area
   const cx = snap((-offsetX + mainC.width / 2) / scale + (Math.random() - 0.5) * 80);
   const cy = snap((-offsetY + mainC.height / 2) / scale + (Math.random() - 0.5) * 80);
-  
+
   const counter = comps.filter(c => c.type === type).length + 1;
   const defaults = {
-    resistor:          { label: `R${counter}`, w: 64, h: 18 },
-    capacitor:         { label: `C${counter}`, w: 56, h: 28 },
-    inductor:          { label: `L${counter}`, w: 80, h: 14 },
-    voltage:           { label: `V${counter}`, w: 44, h: 44 },
-    ground:            { label: '', w: 24, h: 30 },
-    led:               { label: `D${counter}`, w: 48, h: 28 },
-    nmos:              { label: `M${counter}`, w: 56, h: 40 },
-    entity:            { label: `Entity${counter}`, w: 120, h: 80 },
-    weak_entity:       { label: `Weak${counter}`, w: 120, h: 80 },
-    attribute:         { label: `attr${counter}`, w: 88, h: 40 },
-    key_attr:          { label: `PK_attr${counter}`, w: 100, h: 40 },
-    multivalued_attr:  { label: `multi_attr${counter}`, w: 100, h: 44 },
-    derived_attr:      { label: `derived_attr${counter}`, w: 100, h: 44 },
-    relation:          { label: `rel${counter}`, w: 96, h: 50 },
+    resistor: { label: `R${counter}`, w: 64, h: 18 },
+    capacitor: { label: `C${counter}`, w: 56, h: 28 },
+    inductor: { label: `L${counter}`, w: 80, h: 14 },
+    voltage: { label: `V${counter}`, w: 44, h: 44 },
+    ground: { label: '', w: 24, h: 30 },
+    led: { label: `D${counter}`, w: 48, h: 28 },
+    nmos: { label: `M${counter}`, w: 56, h: 40 },
+    entity: { label: `Entity${counter}`, w: 120, h: 80 },
+    weak_entity: { label: `Weak${counter}`, w: 120, h: 80 },
+    attribute: { label: `attr${counter}`, w: 88, h: 40 },
+    key_attr: { label: `PK_attr${counter}`, w: 100, h: 40 },
+    multivalued_attr: { label: `multi_attr${counter}`, w: 100, h: 44 },
+    derived_attr: { label: `derived_attr${counter}`, w: 100, h: 44 },
+    relation: { label: `rel${counter}`, w: 96, h: 50 },
     weak_relationship: { label: `weak_rel${counter}`, w: 96, h: 50 },
-    cardinality:       { label: 'N', w: 30, h: 20 },
+    cardinality: { label: 'N', w: 30, h: 20 },
     // DFD
-    dfd_process:       { label: `Process${counter}`, w: 60, h: 60 },
-    dfd_external:      { label: `External${counter}`, w: 100, h: 60 },
-    dfd_datastore:     { label: `DataStore${counter}`, w: 120, h: 40 },
+    dfd_process: { label: `Process${counter}`, w: 60, h: 60 },
+    dfd_external: { label: `External${counter}`, w: 100, h: 60 },
+    dfd_datastore: { label: `DataStore${counter}`, w: 120, h: 40 },
     // Flowchart
-    flow_terminal:     { label: 'Start/End', w: 100, h: 40 },
-    flow_process:      { label: `Process${counter}`, w: 100, h: 60 },
-    flow_decision:     { label: `Decision${counter}`, w: 90, h: 60 },
-    flow_io:           { label: `I/O`, w: 110, h: 50 },
-    flow_subprocess:   { label: `Subprocess${counter}`, w: 110, h: 60 },
-    flow_connector:    { label: '', w: 24, h: 24 },
+    flow_terminal: { label: 'Start/End', w: 100, h: 40 },
+    flow_process: { label: `Process${counter}`, w: 100, h: 60 },
+    flow_decision: { label: `Decision${counter}`, w: 90, h: 60 },
+    flow_io: { label: `I/O`, w: 110, h: 50 },
+    flow_subprocess: { label: `Subprocess${counter}`, w: 110, h: 60 },
+    flow_connector: { label: '', w: 24, h: 24 },
     // Wireframe
-    wf_box:            { label: 'Container', w: 160, h: 120 },
-    wf_button:         { label: 'Button', w: 90, h: 36 },
-    wf_input:          { label: 'Input Text...', w: 130, h: 36 },
-    wf_text:           { label: 'Static Text Label', w: 120, h: 24 },
-    wf_image:          { label: 'Image', w: 120, h: 90 },
-    wf_divider:        { label: '', w: 160, h: 10 },
+    wf_box: { label: 'Container', w: 160, h: 120 },
+    wf_button: { label: 'Button', w: 90, h: 36 },
+    wf_input: { label: 'Input Text...', w: 130, h: 36 },
+    wf_text: { label: 'Static Text Label', w: 120, h: 24 },
+    wf_image: { label: 'Image', w: 120, h: 90 },
+    wf_divider: { label: '', w: 160, h: 10 },
     // UML
-    uml_class:         { label: `Class${counter}`, w: 130, h: 100 },
-    uml_interface:     { label: `«interface»\nInterface${counter}`, w: 130, h: 100 },
-    uml_actor:         { label: `Actor${counter}`, w: 50, h: 80 },
-    uml_usecase:       { label: `UseCase${counter}`, w: 110, h: 50 },
-    uml_boundary:      { label: 'Boundary', w: 200, h: 200 },
-    uml_lifeline:      { label: `Lifeline${counter}`, w: 90, h: 180 },
-    uml_activation:    { label: '', w: 20, h: 80 },
-    uml_initial:       { label: '', w: 24, h: 24 },
-    uml_final:         { label: '', w: 26, h: 26 },
-    uml_activity:      { label: `ActivityState`, w: 110, h: 50 },
-    uml_fork_join:     { label: '', w: 140, h: 12 },
-    uml_component:     { label: `Component${counter}`, w: 120, h: 70 },
+    uml_class: { label: `Class${counter}`, w: 130, h: 100 },
+    uml_interface: { label: `«interface»\nInterface${counter}`, w: 130, h: 100 },
+    uml_actor: { label: `Actor${counter}`, w: 50, h: 80 },
+    uml_usecase: { label: `UseCase${counter}`, w: 110, h: 50 },
+    uml_boundary: { label: 'Boundary', w: 200, h: 200 },
+    uml_lifeline: { label: `Lifeline${counter}`, w: 90, h: 180 },
+    uml_activation: { label: '', w: 20, h: 80 },
+    uml_initial: { label: '', w: 24, h: 24 },
+    uml_final: { label: '', w: 26, h: 26 },
+    uml_activity: { label: `ActivityState`, w: 110, h: 50 },
+    uml_fork_join: { label: '', w: 140, h: 12 },
+    uml_component: { label: `Component${counter}`, w: 120, h: 70 },
     uml_interface_lollipop: { label: '', w: 30, h: 60 },
-    uml_node:          { label: `Node${counter}`, w: 110, h: 90 },
-    uml_package:       { label: `Package${counter}`, w: 120, h: 80 }
+    uml_node: { label: `Node${counter}`, w: 110, h: 90 },
+    uml_package: { label: `Package${counter}`, w: 120, h: 80 }
   };
   const c = { id: crypto.randomUUID(), type, x: cx, y: cy, ...defaults[type] };
   comps.push(c); sel = c; draw();
@@ -1704,7 +1704,7 @@ mainC.addEventListener('mousedown', e => {
     dragOff = { x: mx - hitC.x, y: my - hitC.y };
     draw(); return;
   }
-  
+
   const hitW = wires.find(w => hitWire(w, mx, my));
   if (hitW) { sel = hitW; draw(); return; }
   sel = null; draw();
@@ -1800,7 +1800,7 @@ mainC.addEventListener('wheel', e => {
 // Properties Panel Logic
 function updatePropertiesPanel() {
   const currentId = sel ? sel.id : (sel && sel.x1 !== undefined ? 'wire-' + wires.indexOf(sel) : null);
-  
+
   if (currentId === lastSelId) {
     return;
   }
@@ -1965,18 +1965,54 @@ function toggleHelp() {
 }
 
 function exportPNG() {
-  const exp = document.createElement('canvas');
-  exp.width = mainC.width; exp.height = mainC.height;
-  const ec = exp.getContext('2d');
-  ec.fillStyle = isDark() ? '#1e1e1e' : '#ffffff';
-  ec.fillRect(0, 0, exp.width, exp.height);
-  ec.drawImage(gridC, 0, 0);
-  ec.drawImage(mainC, 0, 0);
-  exp.toBlob(b => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(b);
-    a.download = 'diagram.png';
-    a.click();
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+
+  const box = document.createElement('div');
+  box.style.cssText = `background:${isDark() ? '#2b2b2b' : '#ffffff'};color:${isDark() ? '#eee' : '#111'};padding:20px 24px;border-radius:8px;font-family:sans-serif;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.3);`;
+
+  box.innerHTML = `
+    <div style="font-size:15px;font-weight:600;margin-bottom:12px;">Export as</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button data-fmt="png" style="padding:8px 12px;border-radius:5px;border:1px solid #888;background:transparent;color:inherit;cursor:pointer;text-align:left;">PNG</button>
+      <button data-fmt="jpeg" style="padding:8px 12px;border-radius:5px;border:1px solid #888;background:transparent;color:inherit;cursor:pointer;text-align:left;">JPEG</button>
+      <button data-fmt="webp" style="padding:8px 12px;border-radius:5px;border:1px solid #888;background:transparent;color:inherit;cursor:pointer;text-align:left;">WebP</button>
+    </div>
+    <div style="text-align:right;margin-top:14px;">
+      <button data-fmt="cancel" style="padding:6px 10px;border:none;background:transparent;color:inherit;opacity:0.7;cursor:pointer;">Cancel</button>
+    </div>
+  `;
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  box.querySelectorAll('button[data-fmt]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const fmt = btn.dataset.fmt;
+      close();
+      if (fmt === 'cancel') return;
+
+      const mimeMap = { png: 'image/png', jpeg: 'image/jpeg', webp: 'image/webp' };
+      const mime = mimeMap[fmt];
+
+      const exp = document.createElement('canvas');
+      exp.width = mainC.width; exp.height = mainC.height;
+      const ec = exp.getContext('2d');
+      ec.fillStyle = isDark() ? '#1e1e1e' : '#ffffff';
+      ec.fillRect(0, 0, exp.width, exp.height);
+      ec.drawImage(gridC, 0, 0);
+      ec.drawImage(mainC, 0, 0);
+
+      exp.toBlob(b => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(b);
+        a.download = `diagram.${fmt === 'jpeg' ? 'jpg' : fmt}`;
+        a.click();
+      }, mime, fmt === 'png' ? undefined : 0.92);
+    });
   });
 }
 
@@ -2008,12 +2044,12 @@ function handleImportFile(input) {
         comps = data.comps;
         wires = data.wires;
         sel = null;
-        
+
         // Reset scale/pan so drawing is visible in center
         scale = 1;
         offsetX = 0;
         offsetY = 0;
-        
+
         drawGrid();
         draw();
         setStatus('Diagram loaded successfully');
@@ -2032,7 +2068,7 @@ function handleImportFile(input) {
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.ctrlKey && e.key === 'z') { undo(); return; }
-  
+
   if (e.key === 'Delete' || e.key === 'Backspace') {
     if (sel) {
       saveHistory();
@@ -2046,7 +2082,7 @@ document.addEventListener('keydown', e => {
     }
     return;
   }
-  
+
   if (e.key === 'Escape') {
     const pickerModal = document.getElementById('picker-modal');
     if (pickerModal && pickerModal.style.display !== 'none') {
@@ -2057,7 +2093,7 @@ document.addEventListener('keydown', e => {
     }
     wireStart = null; tempMouse = null; setTool('select'); draw(); return;
   }
-  
+
   if (e.key.startsWith('Arrow')) {
     if (sel && comps.includes(sel)) {
       e.preventDefault();
@@ -2067,7 +2103,7 @@ document.addEventListener('keydown', e => {
       if (e.key === 'ArrowDown') sel.y += step;
       if (e.key === 'ArrowLeft') sel.x -= step;
       if (e.key === 'ArrowRight') sel.x += step;
-      
+
       if (!e.shiftKey) {
         sel.x = snap(sel.x);
         sel.y = snap(sel.y);
@@ -2077,7 +2113,7 @@ document.addEventListener('keydown', e => {
       return;
     }
   }
-  
+
 
   if (e.code === 'Space') {
     spacePressed = true;
@@ -2085,7 +2121,7 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     return;
   }
-  
+
   if (e.key === 'w' || e.key === 'W') { setTool('wire'); return; }
   if (e.key === 's' || e.key === 'S') { setTool('select'); return; }
   if (e.key === '?') { toggleHelp(); return; }

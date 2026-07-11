@@ -1,261 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-  <!-- SEO -->
-  <title>Diagram Editor — ER, UML, Flowchart, Circuit & Logic Diagrams</title>
-  <meta name="description" content="A free, browser-based diagram editor supporting ER diagrams, UML, flowcharts, circuit diagrams, logic gates, wireframes, and DFD. No signup required." />
-  <meta name="keywords" content="diagram editor, ER diagram, UML, flowchart, circuit diagram, logic gates, wireframe, DFD, free, online" />
-  <meta name="author" content="Nawaraj Poudel" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://diagram-editor.vercel.app/" />
+    <!-- SEO -->
+    <title>Diagram Editor — ER, UML, Flowchart, Circuit & Logic Diagrams</title>
+    <meta name="description" content="A free, browser-based diagram editor supporting ER diagrams, UML, flowcharts, circuit diagrams, logic gates, wireframes, and DFD. No signup required." />
+    <meta name="keywords" content="diagram editor, ER diagram, UML, flowchart, circuit diagram, logic gates, wireframe, DFD, free, online" />
+    <meta name="author" content="Nawaraj Poudel" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://diagram-editor.vercel.app/" />
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Diagram Editor — Professional Diagramming Tool" />
-  <meta property="og:description" content="Create ER, UML, flowcharts, circuits, logic gates, wireframes & more — all in your browser. Free, no signup." />
-  <meta property="og:url" content="https://diagram-editor.vercel.app/" />
-  <meta property="og:site_name" content="Diagram Editor" />
-  <meta property="og:image" content="https://diagram-editor.vercel.app/assets/og-image.png" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Diagram Editor — Professional Diagramming Tool" />
+    <meta property="og:description" content="Create ER, UML, flowcharts, circuits, logic gates, wireframes & more — all in your browser. Free, no signup." />
+    <meta property="og:url" content="https://diagram-editor.vercel.app/" />
+    <meta property="og:site_name" content="Diagram Editor" />
+    <meta property="og:image" content="https://diagram-editor.vercel.app/assets/og-image.png" />
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Diagram Editor — Professional Diagramming Tool" />
-  <meta name="twitter:description" content="Create ER, UML, flowcharts, circuits, logic gates & wireframes in your browser." />
-  <meta name="twitter:image" content="https://diagram-editor.vercel.app/assets/og-image.png" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Diagram Editor — Professional Diagramming Tool" />
+    <meta name="twitter:description" content="Create ER, UML, flowcharts, circuits, logic gates & wireframes in your browser." />
+    <meta name="twitter:image" content="https://diagram-editor.vercel.app/assets/og-image.png" />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
-  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
 
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#1a6bcc" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#1a6bcc" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <!-- Preconnect for performance -->
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 
-  <!-- Icons & Styles -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+    <!-- Icons & Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <div id="app">
-    <!-- Top Bar for actions -->
-    <nav id="toolbar" role="toolbar" aria-label="Diagram tools and actions">
-      <div class="tb-group">
-        <span class="tb-label">Diagram Type: <strong id="active-diagram-type-label">ER Diagram</strong></span>
-        <button class="tb-btn" onclick="showPicker()" style="background: var(--accent); color: white; border-color: var(--accent);" title="Switch Diagram Type">
+    <div id="app">
+        <!-- Top Bar for actions -->
+        <nav id="toolbar" role="toolbar" aria-label="Diagram tools and actions">
+            <div class="tb-group">
+                <span class="tb-label">Diagram Type: <strong id="active-diagram-type-label">ER Diagram</strong></span>
+                <button class="tb-btn" onclick="showPicker()" style="background: var(--accent); color: white; border-color: var(--accent);" title="Switch Diagram Type">
           <i class="ri-settings-4-line"></i> Change Type
         </button>
-      </div>
-      <div class="tb-group">
-        <span class="tb-label">Actions</span>
-        <button class="tb-btn" onclick="undo()" title="Undo (Ctrl+Z)">
+            </div>
+            <div class="tb-group">
+                <span class="tb-label">Actions</span>
+                <button class="tb-btn" onclick="undo()" title="Undo (Ctrl+Z)">
           <i class="ri-arrow-go-back-line"></i> Undo
         </button>
-        <button class="tb-btn" onclick="clearAll()" title="Clear Canvas">
+                <button class="tb-btn" onclick="clearAll()" title="Clear Canvas">
           <i class="ri-delete-bin-7-line"></i> Clear
         </button>
-        <button class="tb-btn" onclick="exportPNG()" title="Export as PNG">
+                <button class="tb-btn" onclick="exportimage()" title="Export as PNG">
           <i class="ri-image-line"></i> Export PNG
         </button>
-        <button class="tb-btn" onclick="exportJSON()" title="Export Diagram Data">
+                <button class="tb-btn" onclick="exportJSON()" title="Export Diagram Data">
           <i class="ri-download-2-line"></i> Save Diagram
         </button>
-        <button class="tb-btn" onclick="triggerImport()" title="Import Diagram Data">
+                <button class="tb-btn" onclick="triggerImport()" title="Import Diagram Data">
           <i class="ri-upload-2-line"></i> Load Diagram
         </button>
-        <button class="tb-btn" onclick="toggleHelp()" title="Keyboard Shortcuts (?)">
+                <button class="tb-btn" onclick="toggleHelp()" title="Keyboard Shortcuts (?)">
           <i class="ri-question-line"></i> Help
         </button>
-      </div>
-    </nav>
+            </div>
+        </nav>
 
-    <!-- Hidden input for file upload -->
-    <input type="file" id="import-file" style="display: none;" accept=".json" onchange="handleImportFile(this)" />
+        <!-- Hidden input for file upload -->
+        <input type="file" id="import-file" style="display: none;" accept=".json" onchange="handleImportFile(this)" />
 
-    <!-- Main Workspace Container -->
-    <main id="workspace">
-      <!-- Left Shape Toolbox -->
-      <aside id="toolbox" role="complementary" aria-label="Shape toolbox">
-        <div class="toolbox-section-title">Tools</div>
-        <button id="btn-select" class="toolbox-btn active" onclick="setTool('select')">
+        <!-- Main Workspace Container -->
+        <main id="workspace">
+            <!-- Left Shape Toolbox -->
+            <aside id="toolbox" role="complementary" aria-label="Shape toolbox">
+                <div class="toolbox-section-title">Tools</div>
+                <button id="btn-select" class="toolbox-btn active" onclick="setTool('select')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7.187 17 3.01-6.803L21 11.187z"/></svg> Select Mode
         </button>
-        <button id="btn-wire" class="toolbox-btn" onclick="setTool('wire')">
+                <button id="btn-wire" class="toolbox-btn" onclick="setTool('wire')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20L20 4"/><circle cx="4" cy="20" r="2" fill="currentColor"/><circle cx="20" cy="4" r="2" fill="currentColor"/></svg> Connector
         </button>
-        <div class="wire-style-toggle">
-          <button id="ws-ortho" class="wire-style-btn active" onclick="setWireStyle('ortho')" title="Orthogonal (right-angle) connector">
+                <div class="wire-style-toggle">
+                    <button id="ws-ortho" class="wire-style-btn active" onclick="setWireStyle('ortho')" title="Orthogonal (right-angle) connector">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 20h8V4"/></svg> Ortho
           </button>
-          <button id="ws-straight" class="wire-style-btn" onclick="setWireStyle('straight')" title="Straight (free-angle) connector">
+                    <button id="ws-straight" class="wire-style-btn" onclick="setWireStyle('straight')" title="Straight (free-angle) connector">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 20L20 4"/></svg> Straight
           </button>
-        </div>
+                </div>
 
-        <div class="toolbox-section-title">Circuit Components</div>
-        <button class="toolbox-btn" onclick="addComp('resistor')">
+                <div class="toolbox-section-title">Circuit Components</div>
+                <button class="toolbox-btn" onclick="addComp('resistor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h3l2-5 3 10 3-10 2 7 2-2h3"/></svg> Resistor
         </button>
-        <button class="toolbox-btn" onclick="addComp('capacitor')">
+                <button class="toolbox-btn" onclick="addComp('capacitor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h7M14 12h7M10 6v12M14 6v12"/></svg> Capacitor
         </button>
-        <button class="toolbox-btn" onclick="addComp('inductor')">
+                <button class="toolbox-btn" onclick="addComp('inductor')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h2c1.5 0 1.5-4 3-4s1.5 4 3 4c1.5 0 1.5-4 3-4s1.5 4 3 4h2"/></svg> Inductor
         </button>
-        <button class="toolbox-btn" onclick="addComp('voltage')">
+                <button class="toolbox-btn" onclick="addComp('voltage')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg> Voltage Source
         </button>
-        <button class="toolbox-btn" onclick="addComp('ground')">
+                <button class="toolbox-btn" onclick="addComp('ground')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v10M6 14h12M8 17h8M10 20h4"/></svg> Ground
         </button>
-        <button class="toolbox-btn" onclick="addComp('led')">
+                <button class="toolbox-btn" onclick="addComp('led')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12M9 7l6 5-6 5V7zM15 7v10"/></svg> LED
         </button>
-        <button class="toolbox-btn" onclick="addComp('nmos')">
+                <button class="toolbox-btn" onclick="addComp('nmos')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h5M10 7v10M13 8h5v-3M13 16h5v3M13 8v8"/></svg> NMOS
         </button>
 
-        <div class="toolbox-section-title">ER Diagram Shapes</div>
-        <button class="toolbox-btn" onclick="addComp('entity')">
+                <div class="toolbox-section-title">ER Diagram Shapes</div>
+                <button class="toolbox-btn" onclick="addComp('entity')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/></svg> Entity
         </button>
-        <button class="toolbox-btn" onclick="addComp('weak_entity')">
+                <button class="toolbox-btn" onclick="addComp('weak_entity')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/><rect x="6" y="8" width="12" height="8" rx="0.5"/></svg> Weak Entity
         </button>
-        <button class="toolbox-btn" onclick="addComp('attribute')">
+                <button class="toolbox-btn" onclick="addComp('attribute')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="9" ry="6"/></svg> Attribute
         </button>
-        <button class="toolbox-btn" onclick="addComp('key_attr')">
+                <button class="toolbox-btn" onclick="addComp('key_attr')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="11" rx="9" ry="5"/><path d="M6 19h12"/></svg> Primary Key Attribute
         </button>
-        <button class="toolbox-btn" onclick="addComp('multivalued_attr')">
+                <button class="toolbox-btn" onclick="addComp('multivalued_attr')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="9" ry="6"/><ellipse cx="12" cy="12" rx="6" ry="4"/></svg> Multivalued Attribute
         </button>
-        <button class="toolbox-btn" onclick="addComp('derived_attr')">
+                <button class="toolbox-btn" onclick="addComp('derived_attr')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3,2"><ellipse cx="12" cy="12" rx="9" ry="6"/></svg> Derived Attribute
         </button>
-        <button class="toolbox-btn" onclick="addComp('relation')">
+                <button class="toolbox-btn" onclick="addComp('relation')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 9-9 9-9-9z"/></svg> Relationship
         </button>
-        <button class="toolbox-btn" onclick="addComp('weak_relationship')">
+                <button class="toolbox-btn" onclick="addComp('weak_relationship')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 6l6 6-6 6-6-6z"/></svg> Weak Relationship
         </button>
-        <button class="toolbox-btn" onclick="addComp('cardinality')">
+                <button class="toolbox-btn" onclick="addComp('cardinality')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><text x="12" y="16" font-size="14" font-weight="bold" text-anchor="middle" fill="currentColor">N</text></svg> Cardinality
         </button>
-      </aside>
+            </aside>
 
-      <!-- Center Canvas Wrapper -->
-      <div id="canvas-wrap" role="img" aria-label="Diagram canvas">
-        <canvas id="grid-canvas" aria-hidden="true"></canvas>
-        <canvas id="main-canvas" tabindex="0" aria-label="Main diagram drawing area"></canvas>
-      </div>
+            <!-- Center Canvas Wrapper -->
+            <div id="canvas-wrap" role="img" aria-label="Diagram canvas">
+                <canvas id="grid-canvas" aria-hidden="true"></canvas>
+                <canvas id="main-canvas" tabindex="0" aria-label="Main diagram drawing area"></canvas>
+            </div>
 
-      <!-- Right Properties Panel -->
-      <aside id="properties-panel" role="complementary" aria-label="Component properties">
-        <div class="panel-header">Properties</div>
-        <div id="properties-content">
-          <div class="empty-properties">
-            <i class="ri-info-card-line" style="font-size: 28px; color: var(--text3); margin-bottom: 8px;"></i>
-            <p>No selection</p>
-            <span>Click a component to edit its properties here.</span>
-          </div>
+            <!-- Right Properties Panel -->
+            <aside id="properties-panel" role="complementary" aria-label="Component properties">
+                <div class="panel-header">Properties</div>
+                <div id="properties-content">
+                    <div class="empty-properties">
+                        <i class="ri-info-card-line" style="font-size: 28px; color: var(--text3); margin-bottom: 8px;"></i>
+                        <p>No selection</p>
+                        <span>Click a component to edit its properties here.</span>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Status Bar -->
+        <footer id="statusbar" role="status" aria-live="polite">
+            <div id="status">Click a component in the toolbox to add it — W = wire, S = select, ? = shortcuts</div>
+            <div style="font-size: 11px; color: var(--text3); opacity: 0.7; letter-spacing: 0.02em;">© 2026 Nawaraj Poudel</div>
+            <div id="coords">x: 0, y: 0</div>
+        </footer>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="ctx-menu">
+        <div class="ctx-item" onclick="ctxRename()">
+            <i class="ri-edit-2-line"></i> Rename
         </div>
-      </aside>
-    </main>
-
-    <!-- Status Bar -->
-    <footer id="statusbar" role="status" aria-live="polite">
-      <div id="status">Click a component in the toolbox to add it — W = wire, S = select, ? = shortcuts</div>
-      <div style="font-size: 11px; color: var(--text3); opacity: 0.7; letter-spacing: 0.02em;">© 2026 Nawaraj Poudel</div>
-      <div id="coords">x: 0, y: 0</div>
-    </footer>
-  </div>
-
-  <!-- Context Menu -->
-  <div id="ctx-menu">
-    <div class="ctx-item" onclick="ctxRename()">
-      <i class="ri-edit-2-line"></i> Rename
-    </div>
-    <div class="ctx-item" onclick="ctxDuplicate()">
-      <i class="ri-file-copy-line"></i> Duplicate
-    </div>
-    <div class="ctx-item danger" onclick="ctxDelete()">
-      <i class="ri-delete-bin-6-line"></i> Delete
-    </div>
-  </div>
-
-  <!-- Help / Shortcuts Modal -->
-  <div id="help" onclick="toggleHelp()">
-    <div id="help-box" onclick="event.stopPropagation()">
-      <h2>Keyboard Shortcuts & Gestures</h2>
-      <div class="help-row">
-        <span>Select Tool / Wire Tool</span>
-        <span><kbd>S</kbd> / <kbd>W</kbd></span>
-      </div>
-      <div class="help-row">
-        <span>Undo Action</span>
-        <span><kbd>Ctrl</kbd> + <kbd>Z</kbd></span>
-      </div>
-      <div class="help-row">
-        <span>Delete Selected Component/Wire</span>
-        <span><kbd>Del</kbd> / <kbd>Backspace</kbd></span>
-      </div>
-      <div class="help-row">
-        <span>Zoom In / Out</span>
-        <span><kbd>Scroll Wheel</kbd></span>
-      </div>
-      <div class="help-row">
-        <span>Pan Canvas</span>
-        <span><kbd>Middle Click + Drag</kbd> or <kbd>Spacebar + Drag</kbd></span>
-      </div>
-      <div class="help-row">
-        <span>Cancel Action / Close Help</span>
-        <span><kbd>Esc</kbd></span>
-      </div>
-      <div class="help-row">
-        <span>Toggle Help Menu</span>
-        <span><kbd>?</kbd></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Diagram Picker Modal -->
-  <div id="picker-modal" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="picker-title">
-    <div class="picker-container">
-      <div class="picker-header">
-        <h2 id="picker-title">Choose a Diagram Type</h2>
-        <div class="search-bar" style="margin-left: auto; margin-right: 16px;">
-          <i class="ri-search-line"></i>
-          <input type="text" id="picker-search" placeholder="Search diagram types..." oninput="filterDiagrams(this.value)" />
+        <div class="ctx-item" onclick="ctxDuplicate()">
+            <i class="ri-file-copy-line"></i> Duplicate
         </div>
-        <button onclick="hidePicker()" style="border: none; background: transparent; color: var(--text2); font-size: 24px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='var(--border)'; this.style.color='var(--text)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text2)';" title="Close">
+        <div class="ctx-item danger" onclick="ctxDelete()">
+            <i class="ri-delete-bin-6-line"></i> Delete
+        </div>
+    </div>
+
+    <!-- Help / Shortcuts Modal -->
+    <div id="help" onclick="toggleHelp()">
+        <div id="help-box" onclick="event.stopPropagation()">
+            <h2>Keyboard Shortcuts & Gestures</h2>
+            <div class="help-row">
+                <span>Select Tool / Wire Tool</span>
+                <span><kbd>S</kbd> / <kbd>W</kbd></span>
+            </div>
+            <div class="help-row">
+                <span>Undo Action</span>
+                <span><kbd>Ctrl</kbd> + <kbd>Z</kbd></span>
+            </div>
+            <div class="help-row">
+                <span>Delete Selected Component/Wire</span>
+                <span><kbd>Del</kbd> / <kbd>Backspace</kbd></span>
+            </div>
+            <div class="help-row">
+                <span>Zoom In / Out</span>
+                <span><kbd>Scroll Wheel</kbd></span>
+            </div>
+            <div class="help-row">
+                <span>Pan Canvas</span>
+                <span><kbd>Middle Click + Drag</kbd> or <kbd>Spacebar + Drag</kbd></span>
+            </div>
+            <div class="help-row">
+                <span>Cancel Action / Close Help</span>
+                <span><kbd>Esc</kbd></span>
+            </div>
+            <div class="help-row">
+                <span>Toggle Help Menu</span>
+                <span><kbd>?</kbd></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagram Picker Modal -->
+    <div id="picker-modal" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="picker-title">
+        <div class="picker-container">
+            <div class="picker-header">
+                <h2 id="picker-title">Choose a Diagram Type</h2>
+                <div class="search-bar" style="margin-left: auto; margin-right: 16px;">
+                    <i class="ri-search-line"></i>
+                    <input type="text" id="picker-search" placeholder="Search diagram types..." oninput="filterDiagrams(this.value)" />
+                </div>
+                <button onclick="hidePicker()" style="border: none; background: transparent; color: var(--text2); font-size: 24px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='var(--border)'; this.style.color='var(--text)';"
+                    onmouseout="this.style.background='transparent'; this.style.color='var(--text2)';" title="Close">
           <i class="ri-close-line"></i>
         </button>
-      </div>
-      <div class="picker-tabs">
-        <button class="picker-tab active" onclick="switchPickerCategory('all')">All</button>
-        <button class="picker-tab" onclick="switchPickerCategory('uml')">UML</button>
-        <button class="picker-tab" onclick="switchPickerCategory('db')">Database / ER</button>
-        <button class="picker-tab" onclick="switchPickerCategory('general')">General</button>
-        <button class="picker-tab" onclick="switchPickerCategory('examples')">Templates & Examples</button>
-      </div>
-      <div class="picker-grid" id="picker-grid-content">
-        <!-- Dynamically populated cards -->
-      </div>
+            </div>
+            <div class="picker-tabs">
+                <button class="picker-tab active" onclick="switchPickerCategory('all')">All</button>
+                <button class="picker-tab" onclick="switchPickerCategory('uml')">UML</button>
+                <button class="picker-tab" onclick="switchPickerCategory('db')">Database / ER</button>
+                <button class="picker-tab" onclick="switchPickerCategory('general')">General</button>
+                <button class="picker-tab" onclick="switchPickerCategory('examples')">Templates & Examples</button>
+            </div>
+            <div class="picker-grid" id="picker-grid-content">
+                <!-- Dynamically populated cards -->
+            </div>
+        </div>
     </div>
-  </div>
 
 
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>
