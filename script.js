@@ -2126,6 +2126,10 @@ document.addEventListener('keydown', e => {
   if (e.key === 's' || e.key === 'S') { setTool('select'); return; }
   if (e.key === '?') { toggleHelp(); return; }
   if (e.key === 'F12') { e.preventDefault(); return; }
+if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'J' || e.key === 'j'))) { 
+    e.preventDefault(); 
+    return; 
+}
 });
 
 document.addEventListener('contextmenu', e => e.preventDefault());
