@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://diagram-paradise.vercel.app/sitemap.xml
+Sitemap: https://diagram-paradish.vercel.app/sitemap.xml
