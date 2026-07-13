@@ -38,6 +38,9 @@
     font-size:12px;color:var(--text2);background:transparent;
     white-space:nowrap;transition:all .12s;line-height:1;
   }
+   a{
+     text-decoration: none;
+   }
   .tb-btn:hover{background:var(--bg);border-color:var(--border2);color:var(--text)}
   .tb-btn.active{background:var(--bg);border-color:var(--accent);color:var(--accent)}
   .tb-btn svg{flex-shrink:0}
