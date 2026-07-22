@@ -30,6 +30,7 @@ let tempMouse = null;
 let hoveredComp = null;
 let hoveredAnchor = null;
 let pendingHandleDrag = null; // { comp, anchor, startX, startY, isDragging: false }
+let resizing = null; // { comp, handle, startX, startY, origX, origY, origW, origH }
 let history = [];
 let ctxTarget = null;
 
@@ -660,15 +661,8 @@ function renderToolbox() {
   selBtn.id = 'btn-select';
   selBtn.className = `toolbox-btn ${tool === 'select' ? 'active' : ''}`;
   selBtn.onclick = () => setTool('select');
-  selBtn.innerHTML = `${SHAPE_SVGS.select} Select Mode`;
+  selBtn.innerHTML = `${SHAPE_SVGS.select} Select & Connect`;
   toolbox.appendChild(selBtn);
-
-  const wireBtn = document.createElement('button');
-  wireBtn.id = 'btn-wire';
-  wireBtn.className = `toolbox-btn ${tool === 'wire' ? 'active' : ''}`;
-  wireBtn.onclick = () => setTool('wire');
-  wireBtn.innerHTML = `${SHAPE_SVGS.wire} Connector`;
-  toolbox.appendChild(wireBtn);
 
   // Add wire style toggle submenu
   const toggleDiv = document.createElement('div');
@@ -1319,6 +1313,36 @@ function drawComp(c, isSel) {
   ctx.restore();
 }
 
+function getResizeHandles(c) {
+  const w = c.w || 100;
+  const h = c.h || 50;
+  const hw = w / 2;
+  const hh = h / 2;
+
+  return [
+    { id: 'tl', cursor: 'nwse-resize', x: c.x - hw, y: c.y - hh },
+    { id: 't',  cursor: 'ns-resize',   x: c.x,      y: c.y - hh },
+    { id: 'tr', cursor: 'nesw-resize', x: c.x + hw, y: c.y - hh },
+    { id: 'r',  cursor: 'ew-resize',   x: c.x + hw, y: c.y },
+    { id: 'br', cursor: 'nwse-resize', x: c.x + hw, y: c.y + hh },
+    { id: 'b',  cursor: 'ns-resize',   x: c.x,      y: c.y + hh },
+    { id: 'bl', cursor: 'nesw-resize', x: c.x - hw, y: c.y + hh },
+    { id: 'l',  cursor: 'ew-resize',   x: c.x - hw, y: c.y }
+  ];
+}
+
+function hitResizeHandle(c, mx, my, scale = 1) {
+  if (!c) return null;
+  const handles = getResizeHandles(c);
+  const radius = 8 / scale;
+  for (const h of handles) {
+    if (Math.hypot(h.x - mx, h.y - my) <= radius) {
+      return h;
+    }
+  }
+  return null;
+}
+
 function getPins(c) {
   if (typeof AnchorManager !== 'undefined') {
     return AnchorManager.getRelativeAnchors(c);
@@ -1463,22 +1487,72 @@ function draw() {
   // Draw components
   comps.forEach(c => drawComp(c, c === sel));
 
-  // Draw connection handle anchors on hover
+  // Draw 8 graphical resize handles on selected shape (White Squares at Corners & Edge Midpoints)
+  if (sel && comps.includes(sel) && (!connectionManager || !connectionManager.wireStart)) {
+    const handles = getResizeHandles(sel);
+    const hw = (sel.w || 100) / 2;
+    const hh = (sel.h || 50) / 2;
+    const hs = 8 / scale;
+
+    ctx.save();
+    // Bounding selection box
+    ctx.strokeStyle = T.sel || '#1a6bcc';
+    ctx.lineWidth = 1.2 / scale;
+    ctx.setLineDash([4 / scale, 4 / scale]);
+    ctx.strokeRect(sel.x - hw, sel.y - hh, sel.w || 100, sel.h || 50);
+    ctx.setLineDash([]);
+
+    // 8 White Square Resize Handles
+    handles.forEach(h => {
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = T.sel || '#1a6bcc';
+      ctx.lineWidth = 1.5 / scale;
+      ctx.beginPath();
+      ctx.rect(h.x - hs / 2, h.y - hs / 2, hs, hs);
+      ctx.fill();
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  // Draw Connection Handles (Blue circles with Plus icons) on hover/selected shape
   const activeHoverComp = hoveredComp || (sel && comps.includes(sel) ? sel : null);
   if (activeHoverComp && typeof AnchorManager !== 'undefined' && (!connectionManager || !connectionManager.wireStart)) {
     const anchors = AnchorManager.getAbsoluteAnchors(activeHoverComp);
     ctx.save();
     anchors.forEach(anc => {
+      // Focus on 4 primary cardinal anchors (top, right, bottom, left) & terminal pins to prevent overlap with corner resize handles
+      const isCardinal = ['top', 'right', 'bottom', 'left'].includes(anc.id) || anc.id.startsWith('pin') || anc.id.startsWith('in') || anc.id === 'out' || anc.id === 'gate' || anc.id === 'drain' || anc.id === 'source';
+      if (!isCardinal && activeHoverComp === sel) return;
+
       const isHovered = hoveredAnchor && hoveredAnchor.anchor && hoveredAnchor.anchor.index === anc.index;
-      const radius = (isHovered ? 7 : 4.5) / scale;
+      const radius = (isHovered ? 8 : 5.5) / scale;
+
+      // Glow halo on hover
+      if (isHovered) {
+        ctx.beginPath();
+        ctx.arc(anc.absX, anc.absY, (radius + 3.5 / scale), 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(26, 107, 204, 0.3)';
+        ctx.fill();
+      }
 
       ctx.beginPath();
       ctx.arc(anc.absX, anc.absY, radius, 0, Math.PI * 2);
-      ctx.fillStyle = isHovered ? (T.sel || '#1a6bcc') : 'rgba(26, 107, 204, 0.65)';
+      ctx.fillStyle = T.sel || '#1a6bcc';
       ctx.fill();
-
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 1.5 / scale;
+      ctx.stroke();
+
+      // Plus (+) crosshair icon inside connector handle
+      const pSize = 3 / scale;
+      ctx.beginPath();
+      ctx.moveTo(anc.absX - pSize, anc.absY);
+      ctx.lineTo(anc.absX + pSize, anc.absY);
+      ctx.moveTo(anc.absX, anc.absY - pSize);
+      ctx.lineTo(anc.absX, anc.absY + pSize);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.2 / scale;
       ctx.stroke();
     });
     ctx.restore();
@@ -1681,7 +1755,26 @@ mainC.addEventListener('mousedown', e => {
     e.preventDefault(); return;
   }
 
-  // 1. Check if clicking down on a connection handle (anchor) for instant drag connector creation
+  // PRIORITY 1: Check selected shape's 8 Graphical Resize Handles
+  if (sel && comps.includes(sel)) {
+    const resizeHandleHit = hitResizeHandle(sel, mx, my, scale);
+    if (resizeHandleHit) {
+      resizing = {
+        comp: sel,
+        handle: resizeHandleHit.id,
+        startX: mx,
+        startY: my,
+        origX: sel.x,
+        origY: sel.y,
+        origW: sel.w || 100,
+        origH: sel.h || 50
+      };
+      e.preventDefault();
+      return;
+    }
+  }
+
+  // PRIORITY 2: Check Connection Handles for instant drag connector creation
   if (hoveredComp && typeof AnchorManager !== 'undefined') {
     const targetAnchorData = hoveredAnchor || AnchorManager.selectBestAnchor(hoveredComp, mx, my);
     if (targetAnchorData && targetAnchorData.distance <= 18 / scale) {
@@ -1697,7 +1790,7 @@ mainC.addEventListener('mousedown', e => {
     }
   }
 
-  // 2. Check existing wire endpoint dragging in select / wire mode
+  // PRIORITY 3: Check existing wire endpoint dragging
   if (connectionManager) {
     for (const w of wires) {
       const coords = getWireCoords(w);
@@ -1716,33 +1809,7 @@ mainC.addEventListener('mousedown', e => {
     }
   }
 
-  if (tool === 'wire') {
-    // If wire creation is already active, complete connection
-    if (connectionManager && connectionManager.wireStart) {
-      const connected = connectionManager.handleMouseUp(wires, wireStyle);
-      if (connected) {
-        saveHistory();
-        wireStart = null;
-        tempMouse = null;
-        sel = null;
-        setStatus('Wire connected');
-      }
-      draw();
-      return;
-    }
-
-    // Start wire creation with Smart Auto Snap
-    const snapState = snapManager ? snapManager.activeSnap : { isSnapped: false };
-    if (snapState.isSnapped && snapState.candidateComp) {
-      connectionManager.startWire(snapState.candidateComp, snapState.anchor.index, snapState.absX, snapState.absY);
-      wireStart = connectionManager.wireStart;
-      sel = snapState.candidateComp;
-      draw();
-      setStatus('Wire started — move near target element to auto-snap, click to connect, Esc to cancel');
-      return;
-    }
-  }
-
+  // PRIORITY 4: Check inside Shape Body -> Move Shape
   const hitC = comps.slice().reverse().find(c => hitTest(c, mx, my));
   if (hitC) {
     sel = hitC; dragging = true;
@@ -1750,6 +1817,7 @@ mainC.addEventListener('mousedown', e => {
     draw(); return;
   }
 
+  // PRIORITY 5: Canvas Click / Selection
   const hitW = wires.find(w => hitWire(w, mx, my));
   if (hitW) { sel = hitW; draw(); return; }
   sel = null; draw();
@@ -1771,6 +1839,43 @@ mainC.addEventListener('mousemove', e => {
   const mx = (screenX - offsetX) / scale;
   const my = (screenY - offsetY) / scale;
   document.getElementById('coords').textContent = `x: ${snap(mx)}, y: ${snap(my)}`;
+
+  // Handle active shape resizing
+  if (resizing) {
+    const dx = mx - resizing.startX;
+    const dy = my - resizing.startY;
+    const minW = 24, minH = 20;
+    let newW = resizing.origW;
+    let newH = resizing.origH;
+    let newX = resizing.origX;
+    let newY = resizing.origY;
+
+    if (resizing.handle.includes('r')) {
+      newW = Math.max(minW, snap(resizing.origW + dx));
+      newX = resizing.origX + (newW - resizing.origW) / 2;
+    }
+    if (resizing.handle.includes('l')) {
+      newW = Math.max(minW, snap(resizing.origW - dx));
+      newX = resizing.origX - (newW - resizing.origW) / 2;
+    }
+    if (resizing.handle.includes('b')) {
+      newH = Math.max(minH, snap(resizing.origH + dy));
+      newY = resizing.origY + (newH - resizing.origH) / 2;
+    }
+    if (resizing.handle.includes('t')) {
+      newH = Math.max(minH, snap(resizing.origH - dy));
+      newY = resizing.origY - (newH - resizing.origH) / 2;
+    }
+
+    resizing.comp.w = newW;
+    resizing.comp.h = newH;
+    resizing.comp.x = newX;
+    resizing.comp.y = newY;
+
+    if (spatialIndex) spatialIndex.update(resizing.comp);
+    draw();
+    return;
+  }
 
   // Handle instant handle drag threshold (5px)
   if (pendingHandleDrag) {
@@ -1812,15 +1917,31 @@ mainC.addEventListener('mousemove', e => {
     return;
   }
 
-  // Hover detection for shapes & connection handles
+  // Hover detection for shapes, resize handles, and connection handles
+  if (sel && comps.includes(sel)) {
+    const resizeHit = hitResizeHandle(sel, mx, my, scale);
+    if (resizeHit) {
+      mainC.style.cursor = resizeHit.cursor;
+      draw();
+      return;
+    }
+  }
+
   if (spatialIndex) {
     const nearby = spatialIndex.queryRadius(mx, my, 60);
     const hitC = nearby.slice().reverse().find(c => hitTest(c, mx, my));
     hoveredComp = hitC || null;
+
     if (hoveredComp && typeof AnchorManager !== 'undefined') {
       hoveredAnchor = AnchorManager.selectBestAnchor(hoveredComp, mx, my);
+      if (hoveredAnchor && hoveredAnchor.distance <= 18 / scale) {
+        mainC.style.cursor = 'crosshair';
+      } else {
+        mainC.style.cursor = 'move';
+      }
     } else {
       hoveredAnchor = null;
+      mainC.style.cursor = spacePressed ? 'grab' : 'default';
     }
 
     if (snapManager) {
@@ -1833,7 +1954,14 @@ mainC.addEventListener('mousemove', e => {
 mainC.addEventListener('mouseup', () => {
   if (isPanning) {
     isPanning = false;
-    mainC.style.cursor = spacePressed ? 'grab' : (tool === 'wire' ? 'crosshair' : 'default');
+    mainC.style.cursor = spacePressed ? 'grab' : 'default';
+    return;
+  }
+
+  if (resizing) {
+    saveHistory();
+    resizing = null;
+    draw();
     return;
   }
 
