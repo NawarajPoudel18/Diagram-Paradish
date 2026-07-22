@@ -4,6 +4,20 @@
  */
 
 const GRID = 20;
+const SNAP_RADIUS = 24;
+const ANCHOR_PRIORITY = 'approach';
+
+// Smart Connector System Manager Instances
+const spatialIndex = typeof SpatialIndex !== 'undefined' ? new SpatialIndex(120) : null;
+const snapManager = typeof SnapManager !== 'undefined' ? new SnapManager({ snapRadius: SNAP_RADIUS, anchorPriority: ANCHOR_PRIORITY }) : null;
+const connectionManager = (spatialIndex && snapManager && typeof ConnectionManager !== 'undefined') ? new ConnectionManager(spatialIndex, snapManager) : null;
+
+function updateSpatialIndex() {
+  if (spatialIndex) {
+    spatialIndex.rebuild(comps);
+  }
+}
+
 let tool = 'select';
 let wireStyle = 'ortho'; // 'ortho' | 'straight'
 let comps = [];
@@ -13,6 +27,9 @@ let dragging = false;
 let dragOff = { x: 0, y: 0 };
 let wireStart = null;
 let tempMouse = null;
+let hoveredComp = null;
+let hoveredAnchor = null;
+let pendingHandleDrag = null; // { comp, anchor, startX, startY, isDragging: false }
 let history = [];
 let ctxTarget = null;
 
@@ -1303,69 +1320,64 @@ function drawComp(c, isSel) {
 }
 
 function getPins(c) {
-  switch (c.type) {
-    case 'resistor': return [{ x: -32, y: 0 }, { x: 32, y: 0 }];
-    case 'capacitor': return [{ x: -28, y: 0 }, { x: 28, y: 0 }];
-    case 'inductor': return [{ x: -40, y: 0 }, { x: 40, y: 0 }];
-    case 'voltage': return [{ x: 0, y: -34 }, { x: 0, y: 34 }];
-    case 'ground': return [{ x: 0, y: -24 }];
-    case 'led': return [{ x: -24, y: 0 }, { x: 24, y: 0 }];
-    case 'nmos': return [{ x: -28, y: 0 }, { x: 20, y: -20 }, { x: 20, y: 20 }];
-    case 'uml_actor': return [{ x: 0, y: -30 }, { x: 18, y: -3 }, { x: 0, y: 35 }, { x: -18, y: -3 }];
-    case 'uml_interface_lollipop': return [{ x: 0, y: -30 }, { x: 0, y: 30 }];
-    case 'uml_activation': return [{ x: 0, y: -(c.h || 80) / 2 }, { x: (c.w || 20) / 2, y: 0 }, { x: 0, y: (c.h || 80) / 2 }, { x: -(c.w || 20) / 2, y: 0 }];
-    case 'uml_fork_join': {
-      const w = c.w || 140;
-      return [
-        { x: -w / 2, y: 0 }, { x: -w / 4, y: 0 }, { x: 0, y: 0 }, { x: w / 4, y: 0 }, { x: w / 2, y: 0 }
-      ];
-    }
-    case 'flow_connector':
-    case 'uml_initial':
-    case 'uml_final': {
-      const r = (c.w || 24) / 2;
-      return [{ x: 0, y: -r }, { x: r, y: 0 }, { x: 0, y: r }, { x: -r, y: 0 }];
-    }
-    case 'gate_not': return [{ x: -25, y: 0 }, { x: 25, y: 0 }];
-    case 'gate_and':
-    case 'gate_or':
-    case 'gate_nand':
-    case 'gate_nor':
-    case 'gate_xor':
-    case 'gate_xnor': return [{ x: -25, y: -8 }, { x: -25, y: 8 }, { x: 25, y: 0 }];
-    case 'logic_input': return [{ x: (c.w || 30) / 2 + 10, y: 0 }];
-    case 'logic_output': return [{ x: -(c.w || 30) / 2 - 10, y: 0 }];
-    // All other 4-pin shapes
-    default: {
-      const hw = (c.w || 100) / 2;
-      const hh = (c.h || 50) / 2;
-      return [{ x: 0, y: -hh }, { x: hw, y: 0 }, { x: 0, y: hh }, { x: -hw, y: 0 }];
-    }
+  if (typeof AnchorManager !== 'undefined') {
+    return AnchorManager.getRelativeAnchors(c);
   }
+  return [{ x: 0, y: -(c.h || 50) / 2 }, { x: (c.w || 100) / 2, y: 0 }, { x: 0, y: (c.h || 50) / 2 }, { x: -(c.w || 100) / 2, y: 0 }];
 }
 
 function getAbsPins(c) {
-  return getPins(c).map(p => ({ x: c.x + p.x, y: c.y + p.y }));
+  if (typeof AnchorManager !== 'undefined') {
+    return AnchorManager.getAbsoluteAnchors(c);
+  }
+  return getPins(c).map(p => ({ x: c.x + p.x, y: c.y + p.y, absX: c.x + p.x, absY: c.y + p.y }));
 }
 
 function getWireCoords(w) {
-  const fromComp = comps.find(c => c.id === w.from);
-  const toComp = comps.find(c => c.id === w.to);
-  if (!fromComp || !toComp) return null;
+  const fromComp = w.from ? comps.find(c => c.id === w.from) : null;
+  const toComp = w.to ? comps.find(c => c.id === w.to) : null;
 
-  const fromPins = getAbsPins(fromComp);
-  const toPins = getAbsPins(toComp);
+  if (!fromComp && w.fromX === undefined) return null;
+  if (!toComp && w.toX === undefined) return null;
 
-  const p1 = fromPins[w.fromPin] || { x: fromComp.x, y: fromComp.y };
-  const p2 = toPins[w.toPin] || { x: toComp.x, y: toComp.y };
+  let x1, y1, x2, y2;
 
-  return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
+  if (fromComp) {
+    const fromPins = getAbsPins(fromComp);
+    const p1 = fromPins[w.fromPin] || { x: fromComp.x, y: fromComp.y, absX: fromComp.x, absY: fromComp.y };
+    x1 = p1.absX !== undefined ? p1.absX : p1.x;
+    y1 = p1.absY !== undefined ? p1.absY : p1.y;
+  } else {
+    x1 = w.fromX || 0;
+    y1 = w.fromY || 0;
+  }
+
+  if (toComp) {
+    const toPins = getAbsPins(toComp);
+    const p2 = toPins[w.toPin] || { x: toComp.x, y: toComp.y, absX: toComp.x, absY: toComp.y };
+    x2 = p2.absX !== undefined ? p2.absX : p2.x;
+    y2 = p2.absY !== undefined ? p2.absY : p2.y;
+  } else {
+    x2 = w.toX || 0;
+    y2 = w.toY || 0;
+  }
+
+  return { x1, y1, x2, y2 };
 }
 
-function nearestPin(c, mx, my, thresh = 18) {
+function nearestPin(c, mx, my, thresh = SNAP_RADIUS, sourcePoint = null) {
+  if (typeof AnchorManager !== 'undefined') {
+    const res = AnchorManager.selectBestAnchor(c, mx, my, sourcePoint, ANCHOR_PRIORITY);
+    if (res && res.distance <= thresh) {
+      return res.index;
+    }
+    return null;
+  }
   let best = null, bd = Infinity;
   getAbsPins(c).forEach((p, i) => {
-    const d = Math.hypot(p.x - mx, p.y - my);
+    const px = p.absX !== undefined ? p.absX : p.x;
+    const py = p.absY !== undefined ? p.absY : p.y;
+    const d = Math.hypot(px - mx, py - my);
     if (d < bd && d < thresh) { bd = d; best = i; }
   });
   return best;
@@ -1373,7 +1385,7 @@ function nearestPin(c, mx, my, thresh = 18) {
 
 function drawArrowhead(ctx, fromX, fromY, toX, toY, T, isSel) {
   const angle = Math.atan2(toY - fromY, toX - fromX);
-  const size = 9; // Let size stay fixed visually or scale with scale: 9 / scale is actually better for retaining crisp proportions at any zoom!
+  const size = 9;
   const scaledSize = size / scale;
 
   ctx.save();
@@ -1395,6 +1407,11 @@ function drawArrowhead(ctx, fromX, fromY, toX, toY, T, isSel) {
 function draw() {
   const T = theme();
   ctx.clearRect(0, 0, mainC.width, mainC.height);
+
+  // Sync spatial index if needed
+  if (spatialIndex && spatialIndex.items.size !== comps.length) {
+    spatialIndex.rebuild(comps);
+  }
 
   ctx.save();
   ctx.translate(offsetX, offsetY);
@@ -1423,7 +1440,6 @@ function draw() {
       lastPointX = mx;
       lastPointY = y2;
     }
-    // 'straight' just goes directly x1,y1 -> x2,y2 (lastPoint stays x1,y1)
     ctx.lineTo(x2, y2);
     ctx.stroke();
 
@@ -1437,41 +1453,36 @@ function draw() {
     ctx.restore();
   });
 
-  // Temp wire during routing
-  if (wireStart && tempMouse) {
-    ctx.save();
-    ctx.strokeStyle = T.wire; ctx.lineWidth = 1.5 / scale;
-    ctx.setLineDash([6 / scale, 4 / scale]);
-    ctx.beginPath();
-
-    const startAbs = getAbsPins(wireStart.comp)[wireStart.pin];
-    ctx.moveTo(startAbs.x, startAbs.y);
-
-    let arrowFromX, arrowFromY;
-    if (wireStyle === 'ortho') {
-      const mx = (startAbs.x + tempMouse.x) / 2;
-      ctx.lineTo(mx, startAbs.y);
-      ctx.lineTo(mx, tempMouse.y);
-      arrowFromX = mx; arrowFromY = tempMouse.y;
-    } else {
-      // Straight: draw direct line
-      arrowFromX = startAbs.x; arrowFromY = startAbs.y;
-    }
-    ctx.lineTo(tempMouse.x, tempMouse.y);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Draw arrowhead pointing to cursor
-    drawArrowhead(ctx, arrowFromX, arrowFromY, tempMouse.x, tempMouse.y, T, false);
-
-    // Start pin highlight
-    ctx.beginPath(); ctx.arc(startAbs.x, startAbs.y, 5 / scale, 0, Math.PI * 2);
-    ctx.fillStyle = T.wire; ctx.fill();
-    ctx.restore();
+  // Temp preview wire & visual snap feedback
+  if (connectionManager && connectionManager.wireStart) {
+    connectionManager.renderPreview(ctx, scale, T, wireStyle);
+  } else if (snapManager && snapManager.activeSnap && snapManager.activeSnap.isSnapped) {
+    snapManager.renderVisualFeedback(ctx, scale, T);
   }
 
   // Draw components
   comps.forEach(c => drawComp(c, c === sel));
+
+  // Draw connection handle anchors on hover
+  const activeHoverComp = hoveredComp || (sel && comps.includes(sel) ? sel : null);
+  if (activeHoverComp && typeof AnchorManager !== 'undefined' && (!connectionManager || !connectionManager.wireStart)) {
+    const anchors = AnchorManager.getAbsoluteAnchors(activeHoverComp);
+    ctx.save();
+    anchors.forEach(anc => {
+      const isHovered = hoveredAnchor && hoveredAnchor.anchor && hoveredAnchor.anchor.index === anc.index;
+      const radius = (isHovered ? 7 : 4.5) / scale;
+
+      ctx.beginPath();
+      ctx.arc(anc.absX, anc.absY, radius, 0, Math.PI * 2);
+      ctx.fillStyle = isHovered ? (T.sel || '#1a6bcc') : 'rgba(26, 107, 204, 0.65)';
+      ctx.fill();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5 / scale;
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
 
   ctx.restore();
 
@@ -1541,11 +1552,12 @@ function ptSegDist(px, py, x1, y1, x2, y2) {
 
 function setTool(t) {
   tool = t; wireStart = null; tempMouse = null;
+  if (connectionManager) connectionManager.cancelWire();
   document.querySelectorAll('.toolbox-btn').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById('btn-' + t);
   if (btn) btn.classList.add('active');
   mainC.style.cursor = t === 'wire' ? 'crosshair' : 'default';
-  setStatus(t === 'select' ? 'Select tool — click to select, drag to move' : `Connector (${wireStyle}) — click a pin to start, click another pin to connect`);
+  setStatus(t === 'select' ? 'Select tool — click to select, drag to move, or drag wire endpoints' : `Connector (${wireStyle}) — move near any shape to auto-detect & snap, click to connect`);
   draw();
 }
 
@@ -1669,33 +1681,66 @@ mainC.addEventListener('mousedown', e => {
     e.preventDefault(); return;
   }
 
-  if (tool === 'wire') {
-    for (const c of comps) {
-      const pi = nearestPin(c, mx, my);
-      if (pi !== null) {
-        if (!wireStart) {
-          const abs = getAbsPins(c)[pi];
-          wireStart = { comp: c, pin: pi, x: abs.x, y: abs.y };
-          sel = c; draw();
-          setStatus('Wire started — click another pin to complete, Esc to cancel');
-        } else {
-          if (c !== wireStart.comp) {
-            saveHistory();
-            wires.push({
-              from: wireStart.comp.id,
-              fromPin: wireStart.pin,
-              to: c.id,
-              toPin: pi,
-              style: wireStyle
-            });
-            wireStart = null; tempMouse = null; sel = null; draw();
-            setStatus('Wire connected');
-          }
-        }
-        return;
+  // 1. Check if clicking down on a connection handle (anchor) for instant drag connector creation
+  if (hoveredComp && typeof AnchorManager !== 'undefined') {
+    const targetAnchorData = hoveredAnchor || AnchorManager.selectBestAnchor(hoveredComp, mx, my);
+    if (targetAnchorData && targetAnchorData.distance <= 18 / scale) {
+      pendingHandleDrag = {
+        comp: hoveredComp,
+        anchor: targetAnchorData.anchor,
+        startX: screenX,
+        startY: screenY,
+        isDragging: false
+      };
+      e.preventDefault();
+      return;
+    }
+  }
+
+  // 2. Check existing wire endpoint dragging in select / wire mode
+  if (connectionManager) {
+    for (const w of wires) {
+      const coords = getWireCoords(w);
+      if (!coords) continue;
+      const d1 = Math.hypot(mx - coords.x1, my - coords.y1);
+      const d2 = Math.hypot(mx - coords.x2, my - coords.y2);
+      if (d1 <= 14 / scale) {
+        connectionManager.startDraggingWireEndpoint(w, 'from', comps);
+        wireStart = connectionManager.wireStart;
+        sel = w; draw(); setStatus('Dragging wire endpoint — snap to element to re-connect or release on empty canvas'); return;
+      } else if (d2 <= 14 / scale) {
+        connectionManager.startDraggingWireEndpoint(w, 'to', comps);
+        wireStart = connectionManager.wireStart;
+        sel = w; draw(); setStatus('Dragging wire endpoint — snap to element to re-connect or release on empty canvas'); return;
       }
     }
-    return;
+  }
+
+  if (tool === 'wire') {
+    // If wire creation is already active, complete connection
+    if (connectionManager && connectionManager.wireStart) {
+      const connected = connectionManager.handleMouseUp(wires, wireStyle);
+      if (connected) {
+        saveHistory();
+        wireStart = null;
+        tempMouse = null;
+        sel = null;
+        setStatus('Wire connected');
+      }
+      draw();
+      return;
+    }
+
+    // Start wire creation with Smart Auto Snap
+    const snapState = snapManager ? snapManager.activeSnap : { isSnapped: false };
+    if (snapState.isSnapped && snapState.candidateComp) {
+      connectionManager.startWire(snapState.candidateComp, snapState.anchor.index, snapState.absX, snapState.absY);
+      wireStart = connectionManager.wireStart;
+      sel = snapState.candidateComp;
+      draw();
+      setStatus('Wire started — move near target element to auto-snap, click to connect, Esc to cancel');
+      return;
+    }
   }
 
   const hitC = comps.slice().reverse().find(c => hitTest(c, mx, my));
@@ -1727,15 +1772,61 @@ mainC.addEventListener('mousemove', e => {
   const my = (screenY - offsetY) / scale;
   document.getElementById('coords').textContent = `x: ${snap(mx)}, y: ${snap(my)}`;
 
-  if (wireStart) {
-    tempMouse = { x: snap(mx), y: snap(my) };
-    draw(); return;
+  // Handle instant handle drag threshold (5px)
+  if (pendingHandleDrag) {
+    const dragDist = Math.hypot(screenX - pendingHandleDrag.startX, screenY - pendingHandleDrag.startY);
+    if (!pendingHandleDrag.isDragging && dragDist >= 5) {
+      pendingHandleDrag.isDragging = true;
+      connectionManager.startWire(
+        pendingHandleDrag.comp,
+        pendingHandleDrag.anchor.index,
+        pendingHandleDrag.anchor.absX,
+        pendingHandleDrag.anchor.absY
+      );
+      wireStart = connectionManager.wireStart;
+      sel = pendingHandleDrag.comp;
+      setStatus('Dragging connector — snap to target element or release on empty canvas');
+    }
+    if (pendingHandleDrag.isDragging && connectionManager) {
+      connectionManager.handleMouseMove(mx, my);
+      tempMouse = connectionManager.tempMouse;
+      draw();
+      return;
+    }
   }
 
+  // Continuous smart snap detection during wire routing or endpoint dragging
+  if (connectionManager && connectionManager.wireStart) {
+    connectionManager.handleMouseMove(mx, my);
+    tempMouse = connectionManager.tempMouse;
+    draw();
+    return;
+  }
+
+  // Component dragging
   if (dragging && sel && tool === 'select') {
     sel.x = snap(mx - dragOff.x);
     sel.y = snap(my - dragOff.y);
-    draw(); return;
+    if (spatialIndex) spatialIndex.update(sel);
+    draw();
+    return;
+  }
+
+  // Hover detection for shapes & connection handles
+  if (spatialIndex) {
+    const nearby = spatialIndex.queryRadius(mx, my, 60);
+    const hitC = nearby.slice().reverse().find(c => hitTest(c, mx, my));
+    hoveredComp = hitC || null;
+    if (hoveredComp && typeof AnchorManager !== 'undefined') {
+      hoveredAnchor = AnchorManager.selectBestAnchor(hoveredComp, mx, my);
+    } else {
+      hoveredAnchor = null;
+    }
+
+    if (snapManager) {
+      snapManager.detectSnap(spatialIndex, mx, my);
+    }
+    draw();
   }
 });
 
@@ -1745,7 +1836,41 @@ mainC.addEventListener('mouseup', () => {
     mainC.style.cursor = spacePressed ? 'grab' : (tool === 'wire' ? 'crosshair' : 'default');
     return;
   }
-  if (dragging) saveHistory();
+
+  if (pendingHandleDrag) {
+    if (!pendingHandleDrag.isDragging) {
+      // Just a click/tap without dragging -> select component
+      sel = pendingHandleDrag.comp;
+      draw();
+    } else if (connectionManager) {
+      const connected = connectionManager.handleMouseUp(wires, wireStyle);
+      if (connected) {
+        saveHistory();
+        setStatus(snapManager && snapManager.activeSnap.isSnapped ? 'Connector attached' : 'Floating connector created');
+      }
+      wireStart = null;
+      tempMouse = null;
+      draw();
+    }
+    pendingHandleDrag = null;
+    return;
+  }
+
+  if (connectionManager && connectionManager.wireStart) {
+    const connected = connectionManager.handleMouseUp(wires, wireStyle);
+    if (connected) {
+      saveHistory();
+      setStatus('Wire updated');
+    }
+    wireStart = null;
+    tempMouse = null;
+    draw();
+  }
+
+  if (dragging) {
+    if (spatialIndex && sel) spatialIndex.update(sel);
+    saveHistory();
+  }
   dragging = false;
 });
 
